@@ -49,7 +49,7 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+  <!-- <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="if exist &quot;$(SolutionDir)\postbuild.cmd&quot; &quot;$(SolutionDir)postbuild.cmd&quot;" />
-  </Target>
+  </Target> -->
 </Project>
