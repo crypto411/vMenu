@@ -2295,7 +2295,7 @@ namespace vMenuClient
 
             if (MainMenu.MiscSettingsMenu != null || forceOverheadNames)
             {
-                bool enabled = MainMenu.MiscSettingsMenu.MiscShowOverheadNames;
+                bool enabled = forceOverheadNames ? true : MainMenu.MiscSettingsMenu.MiscShowOverheadNames;
                 if (!enabled)
                 {
                     foreach (KeyValuePair<Player, int> gamerTag in gamerTags)
