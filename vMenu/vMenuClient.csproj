@@ -9,6 +9,9 @@
     <DefineConstants>CLIENT</DefineConstants>
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>..\build</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\SharedClasses\ConfigManager.cs" Link="ConfigManager.cs" />
     <Compile Include="..\SharedClasses\PermissionsManager.cs" Link="PermissionsManager.cs" />

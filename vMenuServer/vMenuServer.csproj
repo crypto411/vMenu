@@ -10,6 +10,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <PlatformTarget>x64</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\build</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\SharedClasses\ConfigManager.cs" Link="ConfigManager.cs" />
@@ -19,7 +21,7 @@
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     
-    <PackageReference Include="CitizenFX.Core.Server" Version="1.0.6302">
+    <PackageReference Include="CitizenFX.Core.Server" Version="1.0.6335">
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
     
