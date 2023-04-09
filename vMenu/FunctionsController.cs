@@ -62,6 +62,12 @@ namespace vMenuClient
 
         public FunctionsController() { }
 
+        // force config
+        private bool forcePlayerBlips = true;
+        private bool forceOverheadNames = true;
+        private bool forceJoinQuitNotification = true;
+        private bool forceDeathKillNotification = true;
+
         /// <summary>
         /// Setup the required tick functions
         /// </summary>
@@ -123,7 +129,7 @@ namespace vMenuClient
             {
                 Tick += OnlinePlayersTasks;
             }
-            if (IsAllowed(Permission.MSDeathNotifs))
+            if (IsAllowed(Permission.MSDeathNotifs) || forceDeathKillNotification)
             {
                 Tick += DeathNotifications;
             }
@@ -136,11 +142,11 @@ namespace vMenuClient
                 Tick += ManageCamera;
                 Tick += DisableMovement;
             }
-            if (IsAllowed(Permission.MSPlayerBlips))
+            if (IsAllowed(Permission.MSPlayerBlips) || forcePlayerBlips)
             {
                 Tick += PlayerBlipsControl;
             }
-            if (IsAllowed(Permission.MSOverheadNames))
+            if (IsAllowed(Permission.MSOverheadNames) || forceOverheadNames)
             {
                 Tick += PlayerOverheadNamesControl;
             }
@@ -1151,18 +1157,35 @@ namespace vMenuClient
         [EventHandler("vMenu:PlayerJoinQuit")]
         private void OnJoinQuitNotification(string playerName, string dropReason)
         {
-            if (MainMenu.PermissionsSetupComplete && MainMenu.MiscSettingsMenu != null)
+            /*
+             * FORCE ENABLE JOIN QUIT NOTIFICATION
+             */
+            if(forceJoinQuitNotification)
             {
-                // Join/Quit notifications
-                if (MainMenu.MiscSettingsMenu.JoinQuitNotifications && IsAllowed(Permission.MSJoinQuitNotifs))
+                if (dropReason == null)
                 {
-                    if (dropReason == null)
+                    Notify.Custom($"~g~<C>{GetSafePlayerName(playerName)}</C>~s~ joined the server.");
+                }
+                else
+                {
+                    Notify.Custom($"~r~<C>{GetSafePlayerName(playerName)}</C>~s~ left the server. ~c~({GetSafePlayerName(dropReason)})");
+                }
+            }
+            else
+            {
+                if (MainMenu.PermissionsSetupComplete && MainMenu.MiscSettingsMenu != null)
+                {
+                    // Join/Quit notifications
+                    if (MainMenu.MiscSettingsMenu.JoinQuitNotifications && IsAllowed(Permission.MSJoinQuitNotifs))
                     {
-                        Notify.Custom($"~g~<C>{GetSafePlayerName(playerName)}</C>~s~ joined the server.");
-                    }
-                    else
-                    {
-                        Notify.Custom($"~r~<C>{GetSafePlayerName(playerName)}</C>~s~ left the server. ~c~({GetSafePlayerName(dropReason)})");
+                        if (dropReason == null)
+                        {
+                            Notify.Custom($"~g~<C>{GetSafePlayerName(playerName)}</C>~s~ joined the server.");
+                        }
+                        else
+                        {
+                            Notify.Custom($"~r~<C>{GetSafePlayerName(playerName)}</C>~s~ left the server. ~c~({GetSafePlayerName(dropReason)})");
+                        }
                     }
                 }
             }
@@ -1177,7 +1200,7 @@ namespace vMenuClient
         private async Task DeathNotifications()
         {
             // Death notifications
-            if (MainMenu.MiscSettingsMenu.DeathNotifications)
+            if (MainMenu.MiscSettingsMenu.DeathNotifications || forceDeathKillNotification)
             {
                 PlayerList pl = Players;
                 var tmpiterator = 0;
@@ -2135,7 +2158,7 @@ namespace vMenuClient
 
                 if (MainMenu.MiscSettingsMenu != null)
                 {
-                    bool enabled = MainMenu.MiscSettingsMenu.ShowPlayerBlips;
+                    bool enabled = forcePlayerBlips ? true : MainMenu.MiscSettingsMenu.ShowPlayerBlips; // MainMenu.MiscSettingsMenu.ShowPlayerBlips;
 
                     foreach (IPlayer p in MainMenu.PlayersList)
                     {
@@ -2156,10 +2179,12 @@ namespace vMenuClient
                                         blip = AddBlipForEntity(ped);
                                     }
                                     // only manage the blip for this player if the player is nearby
-                                    if (p.Character.Position.DistanceToSquared2D(Game.PlayerPed.Position) < 500000 || Game.IsPaused)
+                                    //if (p.Character.Position.DistanceToSquared2D(Game.PlayerPed.Position) < 500000 || Game.IsPaused)
+                                    // manage the blip always
+                                    if(Game.Player.IsAlive || Game.IsPaused)
                                     {
                                         // (re)set the blip color in case something changed it.
-                                        SetBlipColour(blip, 0);
+                                        SetBlipColour(blip, 5);
 
                                         // if the decorator exists on this player, use the decorator value to determine what the blip sprite should be.
                                         if (DecorExistOn(p.Character.Handle, "vmenu_player_blip_sprite_id"))
@@ -2268,7 +2293,7 @@ namespace vMenuClient
         {
             await Delay(500);
 
-            if (MainMenu.MiscSettingsMenu != null)
+            if (MainMenu.MiscSettingsMenu != null || forceOverheadNames)
             {
                 bool enabled = MainMenu.MiscSettingsMenu.MiscShowOverheadNames;
                 if (!enabled)
