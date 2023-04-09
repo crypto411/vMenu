@@ -5,12 +5,12 @@
     <Configurations>Release;Debug</Configurations>
     <AssemblyName>vMenuClient.net</AssemblyName>
     <TargetName>$(AssemblyName)</TargetName>
-    <OutputPath>..\..\build\</OutputPath>
+    <OutputPath>..\build\</OutputPath>
     <DefineConstants>CLIENT</DefineConstants>
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>..\build</OutputPath>
+    <OutputPath>..\build\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\SharedClasses\ConfigManager.cs" Link="ConfigManager.cs" />

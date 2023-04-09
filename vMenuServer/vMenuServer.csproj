@@ -5,13 +5,13 @@
     <Configurations>Release;Debug</Configurations>
     <AssemblyName>vMenuServer.net</AssemblyName>
     <TargetName>$(AssemblyName)</TargetName>
-    <OutputPath>..\..\build\</OutputPath>
+    <OutputPath>..\build\</OutputPath>
     <DefineConstants>SERVER</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\build</OutputPath>
+    <OutputPath>..\build\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\SharedClasses\ConfigManager.cs" Link="ConfigManager.cs" />
