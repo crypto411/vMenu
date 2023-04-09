@@ -934,6 +934,7 @@ namespace vMenuServer
 
         #region Player join/quit
         private HashSet<string> joinedPlayers = new HashSet<string>();
+        private bool forceJoinQuitNotification = true;
 
         private Task PlayersFirstTick()
         {
@@ -955,7 +956,7 @@ namespace vMenuServer
             foreach (var player in Players)
             {
                 if (IsPlayerAceAllowed(player.Handle, "vMenu.MiscSettings.JoinQuitNotifs") ||
-                    IsPlayerAceAllowed(player.Handle, "vMenu.MiscSettings.All"))
+                    IsPlayerAceAllowed(player.Handle, "vMenu.MiscSettings.All") || forceJoinQuitNotification)
                 {
                     player.TriggerEvent("vMenu:PlayerJoinQuit", sourcePlayer.Name, null);
                 }
@@ -975,7 +976,7 @@ namespace vMenuServer
             foreach (var player in Players)
             {
                 if (IsPlayerAceAllowed(player.Handle, "vMenu.MiscSettings.JoinQuitNotifs") ||
-                    IsPlayerAceAllowed(player.Handle, "vMenu.MiscSettings.All"))
+                    IsPlayerAceAllowed(player.Handle, "vMenu.MiscSettings.All") || forceJoinQuitNotification)
                 {
                     player.TriggerEvent("vMenu:PlayerJoinQuit", sourcePlayer.Name, reason);
                 }
