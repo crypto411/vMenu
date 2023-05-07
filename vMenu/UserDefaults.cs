@@ -405,6 +405,8 @@ namespace vMenuClient
                     kvpString == "unlimitedStamina" ||
                     kvpString == "miscDeathNotifications" ||
                     kvpString == "miscJoinQuitNotifications" ||
+                    kvpString == "miscShowPlayerBlips" ||
+                    kvpString == "miscShowOverheadNames" ||
                     kvpString == "vehicleSpawnerSpawnInside" ||
                     kvpString == "vehicleSpawnerReplacePrevious" ||
                     kvpString == "neverWanted" ||

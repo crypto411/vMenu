@@ -63,10 +63,10 @@ namespace vMenuClient
         public FunctionsController() { }
 
         // force config
-        private bool forcePlayerBlips = true;
-        private bool forceOverheadNames = true;
-        private bool forceJoinQuitNotification = true;
-        private bool forceDeathKillNotification = true;
+        private bool forcePlayerBlips = false;
+        private bool forceOverheadNames = false;
+        private bool forceJoinQuitNotification = false;
+        private bool forceDeathKillNotification = false;
 
         /// <summary>
         /// Setup the required tick functions
