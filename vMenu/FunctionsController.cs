@@ -2184,7 +2184,7 @@ namespace vMenuClient
                                     if(Game.Player.IsAlive || Game.IsPaused)
                                     {
                                         // (re)set the blip color in case something changed it.
-                                        SetBlipColour(blip, 5);
+                                        SetBlipColour(blip, 4);
 
                                         // if the decorator exists on this player, use the decorator value to determine what the blip sprite should be.
                                         if (DecorExistOn(p.Character.Handle, "vmenu_player_blip_sprite_id"))
@@ -2235,6 +2235,13 @@ namespace vMenuClient
 
                                         // display on minimap and main map.
                                         SetBlipDisplay(blip, 6);
+                                        // please refer to freefun_pvp resoure
+                                        if (GetResourceState("freefun_pvp") == "started")
+                                        {
+                                            bool pvpMode = Exports["freefun_pvp"].GetPlayerPvPMode(p.Handle);
+                                            SetBlipColour(blip, pvpMode ? 1 : 5);
+                                            //Debug.WriteLine($"pvp state {p.Name}: {pvpMode}");
+                                        }
                                     }
                                     else
                                     {
@@ -2331,6 +2338,16 @@ namespace vMenuClient
                             if (closeEnough && gamerTags.ContainsKey(p))
                             {
                                 SetMpGamerTagVisibility(gamerTags[p], 2, true); // healthArmor
+                                //SetMpGamerTagVisibility(gamerTags[p], 16, true); // typing will be used soon
+
+                                // please refer to freefun_pvp resoure
+                                if (GetResourceState("freefun_pvp") == "started")
+                                {
+                                    bool pvpMode = Exports["freefun_pvp"].GetPlayerPvPMode(p.Handle);
+                                    SetMpGamerTagVisibility(gamerTags[p], 6, !pvpMode);
+                                    SetMpGamerTagColour(gamerTags[p], 0, pvpMode ? 6 : 12);
+                                    //Debug.WriteLine($"pvp state {p.Name}: {pvpMode}");
+                                }
                                 if (p.WantedLevel > 0)
                                 {
                                     SetMpGamerTagVisibility(gamerTags[p], 7, true); // wantedStars
