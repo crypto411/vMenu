@@ -2242,6 +2242,14 @@ namespace vMenuClient
                                             SetBlipColour(blip, pvpMode ? 1 : 5);
                                             //Debug.WriteLine($"pvp state {p.Name}: {pvpMode}");
                                         }
+
+                                        // please refer to SimplePassive resoure
+                                        if (GetResourceState("SimplePassive") == "started")
+                                        {
+                                            var passiveMode = Exports["SimplePassive"].getActivation(p.ServerId) == true;
+                                            SetBlipColour(blip, passiveMode ? 5 : 1);
+                                            //Debug.WriteLine($"passive state {p.Name}: {}");
+                                        }
                                     }
                                     else
                                     {
@@ -2347,6 +2355,15 @@ namespace vMenuClient
                                     SetMpGamerTagVisibility(gamerTags[p], 6, !pvpMode);
                                     SetMpGamerTagColour(gamerTags[p], 0, pvpMode ? 6 : 12);
                                     //Debug.WriteLine($"pvp state {p.Name}: {pvpMode}");
+                                }
+
+                                // please refer to SimplePassive resoure
+                                if (GetResourceState("SimplePassive") == "started")
+                                {
+                                    var passiveMode = Exports["SimplePassive"].getActivation(p.ServerId) == true;
+                                    SetMpGamerTagVisibility(gamerTags[p], 6, passiveMode);
+                                    SetMpGamerTagColour(gamerTags[p], 0, passiveMode ? 12 : 6);
+                                    //Debug.WriteLine($"passive state {p.Name}: {}");
                                 }
                                 if (p.WantedLevel > 0)
                                 {
