@@ -11,7 +11,7 @@ namespace vMenuClient
     {
 
         // Constants.
-        private const string SETTINGS_PREFIX = "settings_";
+        private const string SETTINGS_PREFIX = "ff_settings_";
 
         #region Public variables.
         #region PlayerOptions
