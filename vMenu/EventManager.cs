@@ -230,7 +230,19 @@ namespace vMenuClient
         /// <returns></returns>
         private async Task TimeSync()
         {
-            NetworkOverrideClockTime(GetServerHours, GetServerMinutes, 0);
+            if(GetResourceState("freefun_time") == "started")
+            {
+                //Debug.WriteLine($"started {!Exports["freefun_time"].IsPlayerTimeSync()}");
+                if(Exports["freefun_time"].IsPlayerTimeSync())
+                {
+                    NetworkOverrideClockTime(GetServerHours, GetServerMinutes, 0);
+                }
+            }
+            else
+            {
+                //Debug.WriteLine("not started, regular");
+                NetworkOverrideClockTime(GetServerHours, GetServerMinutes, 0);
+            }
             if (IsServerTimeFrozen || IsServerTimeSyncedWithMachineTime)
             {
                 await Delay(5);
