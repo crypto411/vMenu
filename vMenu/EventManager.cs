@@ -216,7 +216,19 @@ namespace vMenuClient
             SetArtificialLightsState(IsBlackoutEnabled);
             if (GetNextWeatherType() != GetHashKey(GetServerWeather))
             {
-                SetWeatherTypeOvertimePersist(GetServerWeather, (float)WeatherChangeTime);
+                if (GetResourceState("freefun_weather") == "started")
+                {
+                    //Debug.WriteLine($"started {!Exports["freefun_time"].IsPlayerWeatherSync()}");
+                    if (Exports["freefun_weather"].IsPlayerWeatherSync())
+                    {
+                        SetWeatherTypeOvertimePersist(GetServerWeather, (float)WeatherChangeTime);
+                    }
+                }
+                else
+                {
+                    //Debug.WriteLine("not started, regular");
+                    SetWeatherTypeOvertimePersist(GetServerWeather, (float)WeatherChangeTime);
+                }
                 await Delay(WeatherChangeTime * 1000 + 2000);
 
                 TriggerEvent("vMenu:WeatherChangeComplete", GetServerWeather);
