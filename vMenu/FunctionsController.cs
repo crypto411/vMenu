@@ -2346,7 +2346,13 @@ namespace vMenuClient
                             if (closeEnough && gamerTags.ContainsKey(p))
                             {
                                 SetMpGamerTagVisibility(gamerTags[p], 2, true); // healthArmor
-                                //SetMpGamerTagVisibility(gamerTags[p], 16, true); // typing will be used soon
+
+                                // please refer to custom chat freefun
+                                if (GetResourceState("chat") == "started")
+                                {
+                                    bool isTyping = Exports["chat"].IsLocalPlayerTyping(p.ServerId);
+                                    SetMpGamerTagVisibility(gamerTags[p], 16, isTyping); // typing
+                                }
 
                                 // please refer to freefun_pvp resoure
                                 if (GetResourceState("freefun_pvp") == "started")
