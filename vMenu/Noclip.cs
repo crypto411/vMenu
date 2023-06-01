@@ -46,6 +46,24 @@ namespace vMenuClient
         {
             if (NoclipActive)
             {
+                if (GetPlayerWantedLevel(Game.Player.Handle) > 0)
+                {
+                    Notify.Error("Hilangkan ~r~bintang polisi (wanted level) ~w~bila ingin menggunakan ~g~noclip", true, true);
+                    NoclipActive = false;
+                    return;
+                }
+
+                // SimplePassive
+                if (GetResourceState("SimplePassive") == "started")
+                {
+                    if (Exports["SimplePassive"].getActivation(Game.Player.ServerId) == false)
+                    {
+                        Notify.Error("~y~Aktifkan mode passive ~w~bila ingin menggunakan ~g~noclip", true, true);
+                        NoclipActive = false;
+                        return;
+                    }
+                }
+
                 Scale = RequestScaleformMovie("INSTRUCTIONAL_BUTTONS");
                 while (!HasScaleformMovieLoaded(Scale))
                 {
@@ -56,6 +74,24 @@ namespace vMenuClient
             }
             while (NoclipActive)
             {
+                if (GetPlayerWantedLevel(Game.Player.Handle) > 0)
+                {
+                    Notify.Error("Hilangkan ~r~bintang polisi (wanted level) ~w~bila ingin menggunakan ~g~noclip", true, true);
+                    NoclipActive = false;
+                    break;
+                }
+
+                // SimplePassive
+                if (GetResourceState("SimplePassive") == "started")
+                {
+                    if (Exports["SimplePassive"].getActivation(Game.Player.ServerId) == false)
+                    {
+                        Notify.Error("~y~Aktifkan mode passive ~w~bila ingin menggunakan ~g~noclip", true, true);
+                        NoclipActive = false;
+                        break;
+                    }
+                }
+
                 if (!IsHudHidden())
                 {
                     BeginScaleformMovieMethod(Scale, "CLEAR_ALL");
