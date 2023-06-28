@@ -302,6 +302,18 @@ namespace vMenuClient
             PlayersList?.ReceivedPlayerList(players);
         }
 
+        // teleport
+        [EventHandler("vMenu:TeleportToCoords")]
+        public void OnTeleportToCoords(float x, float y, float z, bool safeModeDisabled = false)
+        {
+            _ = TeleportToCoords(x, y, z, safeModeDisabled);
+        }
+
+        public async Task TeleportToCoords(float x, float y, float z, bool safeModeDisabled = false)
+        {
+            await CommonFunctions.TeleportToCoords(new Vector3(x, y, z), safeModeDisabled);
+        }
+
         public static async Task<Vector3> RequestPlayerCoordinates(int serverId)
         {
             Vector3 coords = Vector3.Zero;

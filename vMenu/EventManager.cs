@@ -33,7 +33,7 @@ namespace vMenuClient
         public EventManager()
         {
             // Add event handlers.
-            EventHandlers.Add("vMenu:SetAddons", new Action(SetAddons));
+            EventHandlers.Add("vMenu:SetAddons", new Action<string>(SetAddons));
             EventHandlers.Add("vMenu:SetPermissions", new Action<string>(MainMenu.SetPermissions));
             EventHandlers.Add("vMenu:GoToPlayer", new Action<string>(SummonPlayer));
             EventHandlers.Add("vMenu:KillMe", new Action<string>(KillMe));
@@ -105,14 +105,15 @@ namespace vMenuClient
         /// <summary>
         /// Sets the addon models from the addons.json file.
         /// </summary>
-        private void SetAddons()
+        private void SetAddons(string jsonData)
         {
             // reset addons
             VehicleSpawner.AddonVehicles = new Dictionary<string, uint>();
             WeaponOptions.AddonWeapons = new Dictionary<string, uint>();
             PlayerAppearance.AddonPeds = new Dictionary<string, uint>();
 
-            string jsonData = LoadResourceFile(GetCurrentResourceName(), "config/addons.json") ?? "{}";
+            // string jsonData = LoadResourceFile(GetCurrentResourceName(), "config/addons.json") ?? "{}";
+            // Debug.WriteLine(jsonData);
             try
             {
                 // load new addons.

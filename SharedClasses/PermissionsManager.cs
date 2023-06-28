@@ -522,11 +522,13 @@ namespace vMenuShared
                 }
             }
 
+            // Also tell the client to do the addons setup.
+            var addonsJson = LoadResourceFile(GetCurrentResourceName(), "config/addons.json") ?? "{}";
+            // Debug.WriteLine($"{addonsJson}");
+            player.TriggerEvent("vMenu:SetAddons", addonsJson);
+
             // Send the permissions to the client.
             player.TriggerEvent("vMenu:SetPermissions", Newtonsoft.Json.JsonConvert.SerializeObject(perms));
-
-            // Also tell the client to do the addons setup.
-            player.TriggerEvent("vMenu:SetAddons");
             player.TriggerEvent("vMenu:UpdateTeleportLocations", Newtonsoft.Json.JsonConvert.SerializeObject(ConfigManager.GetTeleportLocationsData()));
         }
 #endif

@@ -711,6 +711,7 @@ namespace vMenuClient
                 string json = JsonConvert.SerializeObject(currentCharacter);
                 if (StorageManager.SaveJsonData(currentCharacter.SaveName, json, true))
                 {
+                    BaseScript.TriggerServerEvent("vMenu:onSavePed", "editing", currentCharacter.SaveName, json);
                     Notify.Success("Your character was saved successfully.");
                     return true;
                 }
@@ -732,9 +733,9 @@ namespace vMenuClient
                 {
                     currentCharacter.SaveName = "mp_ped_" + name;
                     string json = JsonConvert.SerializeObject(currentCharacter);
-
                     if (StorageManager.SaveJsonData("mp_ped_" + name, json, false))
                     {
+                        BaseScript.TriggerServerEvent("vMenu:onSavePed", "new", currentCharacter.SaveName, json);
                         Notify.Success($"Your character (~g~<C>{name}</C>~s~) has been saved.");
                         Log($"Saved Character {name}. Data: {json}");
                         return true;
@@ -2174,9 +2175,11 @@ namespace vMenuClient
                         }
                         else
                         {
+                            var json = JsonConvert.SerializeObject(tmpCharacter);
                             tmpCharacter.SaveName = "mp_ped_" + name;
-                            if (StorageManager.SaveJsonData("mp_ped_" + name, JsonConvert.SerializeObject(tmpCharacter), false))
+                            if (StorageManager.SaveJsonData("mp_ped_" + name, json, false))
                             {
+                                BaseScript.TriggerServerEvent("vMenu:onSavePed", "cloning", tmpCharacter.SaveName, json);
                                 Notify.Success($"Your character has been cloned. The name of the cloned character is: ~g~<C>{name}</C>~s~.");
                                 UpdateSavedPedsMenu();
                             }
@@ -2203,9 +2206,12 @@ namespace vMenuClient
                         }
                         else
                         {
+                            var json = JsonConvert.SerializeObject(tmpCharacter);
                             tmpCharacter.SaveName = "mp_ped_" + name;
-                            if (StorageManager.SaveJsonData("mp_ped_" + name, JsonConvert.SerializeObject(tmpCharacter), false))
+
+                            if (StorageManager.SaveJsonData("mp_ped_" + name, json, false))
                             {
+                                BaseScript.TriggerServerEvent("vMenu:onSavePed", "renaming", tmpCharacter.SaveName, json);
                                 StorageManager.DeleteSavedStorageItem("mp_ped_" + selectedSavedCharacterManageName);
                                 Notify.Success($"Your character has been renamed to ~g~<C>{name}</C>~s~.");
                                 UpdateSavedPedsMenu();
