@@ -624,8 +624,12 @@ namespace vMenuClient
             {
                 menu.AddMenuItem(playerNames);
             }
-            // always allowed, it just won't do anything if the server owner disabled the feature, but players can still toggle it.
-            menu.AddMenuItem(respawnDefaultCharacter);
+            if(GetResourceState("freefun_clothing") != "started")
+            {
+                // always allowed, it just won't do anything if the server owner disabled the feature, but players can still toggle it.
+                menu.AddMenuItem(respawnDefaultCharacter);
+
+            }
             if (IsAllowed(Permission.MSRestoreAppearance))
             {
                 menu.AddMenuItem(restorePlayerAppearance);

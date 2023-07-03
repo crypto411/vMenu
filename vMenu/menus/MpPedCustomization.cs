@@ -1858,6 +1858,10 @@ namespace vMenuClient
                     ClearAllPedProps(Game.PlayerPed.Handle);
 
                     MakeCreateCharacterMenu(male: true);
+                    if (GetResourceState("freefun_clothing") == "started")
+                    {
+                        Notify.Custom($"Simpan ~g~character ~w~kamu di toko baju agar tersimpan dan dapat dimuat kembali ketika spawn");
+                    }
                 }
                 else if (item == createFemaleBtn)
                 {
@@ -1894,6 +1898,10 @@ namespace vMenuClient
                     ClearAllPedProps(Game.PlayerPed.Handle);
 
                     MakeCreateCharacterMenu(male: false);
+                    if (GetResourceState("freefun_clothing") == "started")
+                    {
+                        Notify.Custom($"Simpan ~g~character ~w~kamu di toko baju agar tersimpan dan dapat dimuat kembali ketika spawn");
+                    }
                 }
                 else if (item == savedCharacters)
                 {
@@ -2152,15 +2160,28 @@ namespace vMenuClient
                     await SpawnSavedPed(true);
 
                     MakeCreateCharacterMenu(male: currentCharacter.IsMale, editPed: true);
+                    if (GetResourceState("freefun_clothing") == "started")
+                    {
+                        Notify.Custom($"Simpan ~g~character ~w~kamu di toko baju agar tersimpan dan dapat dimuat kembali ketika spawn");
+                    }
                 }
                 else if (item == spawnPed)
                 {
                     currentCharacter = StorageManager.GetSavedMpCharacterData(selectedSavedCharacterManageName);
 
                     await SpawnSavedPed(true);
+                    if (GetResourceState("freefun_clothing") == "started")
+                    {
+                        Notify.Custom($"Simpan ~g~character ~w~kamu di toko baju agar tersimpan dan dapat dimuat kembali ketika spawn");
+                    }
                 }
                 else if (item == clonePed)
                 {
+                    if (GetResourceState("freefun_clothing") == "started")
+                    {
+                        Notify.Custom($"Simpan ~g~character ~w~kamu di toko baju agar tersimpan dan dapat dimuat kembali ketika spawn");
+                    }
+
                     var tmpCharacter = StorageManager.GetSavedMpCharacterData("mp_ped_" + selectedSavedCharacterManageName);
                     string name = await GetUserInput(windowTitle: "Enter a name for the cloned character", defaultText: tmpCharacter.SaveName.Substring(7), maxInputLength: 30);
                     if (string.IsNullOrEmpty(name))
@@ -2192,6 +2213,11 @@ namespace vMenuClient
                 }
                 else if (item == renameCharacter)
                 {
+                    if (GetResourceState("freefun_clothing") == "started")
+                    {
+                        Notify.Custom($"Simpan ~g~character ~w~kamu di toko baju agar tersimpan dan dapat dimuat kembali ketika spawn");
+                    }
+
                     var tmpCharacter = StorageManager.GetSavedMpCharacterData("mp_ped_" + selectedSavedCharacterManageName);
                     string name = await GetUserInput(windowTitle: "Enter a new character name", defaultText: tmpCharacter.SaveName.Substring(7), maxInputLength: 30);
                     if (string.IsNullOrEmpty(name))
@@ -2230,6 +2256,11 @@ namespace vMenuClient
                 }
                 else if (item == delPed)
                 {
+                    if (GetResourceState("freefun_clothing") == "started")
+                    {
+                        Notify.Custom($"Simpan ~g~character ~w~kamu di toko baju agar tersimpan dan dapat dimuat kembali ketika spawn");
+                    }
+
                     if (delPed.Label == "Are you sure?")
                     {
                         delPed.Label = "";
@@ -2246,12 +2277,24 @@ namespace vMenuClient
                 }
                 else if (item == setAsDefaultPed)
                 {
-                    Notify.Success($"Your character <C>{selectedSavedCharacterManageName}</C> will now be used as your default character whenever you (re)spawn.");
-                    SetResourceKvp("vmenu_default_character", "mp_ped_" + selectedSavedCharacterManageName);
+                    if (GetResourceState("freefun_clothing") == "started")
+                    {
+                        Notify.Custom($"Fitur ini dimatikan, Simpan ~g~character ~w~kamu di toko baju agar tersimpan dan dapat dimuat kembali ketika spawn");
+                    }
+                    else
+                    {
+                        Notify.Success($"Your character <C>{selectedSavedCharacterManageName}</C> will now be used as your default character whenever you (re)spawn.");
+                        SetResourceKvp("vmenu_default_character", "mp_ped_" + selectedSavedCharacterManageName);
+
+                    }
                 }
 
                 if (item != delPed)
                 {
+                    if (GetResourceState("freefun_clothing") == "started")
+                    {
+                        Notify.Custom($"Simpan ~g~character ~w~kamu di toko baju agar tersimpan dan dapat dimuat kembali ketika spawn");
+                    }
                     if (delPed.Label == "Are you sure?")
                     {
                         delPed.Label = "";

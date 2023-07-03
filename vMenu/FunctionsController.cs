@@ -2000,7 +2000,10 @@ namespace vMenuClient
 
                 if (restoreDefault)
                 {
-                    await MainMenu.MpPedCustomizationMenu.SpawnThisCharacter(GetResourceKvpString("vmenu_default_character"), false);
+                    if (GetResourceState("freefun_clothing") != "started")
+                    {
+                        await MainMenu.MpPedCustomizationMenu.SpawnThisCharacter(GetResourceKvpString("vmenu_default_character"), false);
+                    }
                 }
                 else
                 {
