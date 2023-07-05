@@ -279,8 +279,31 @@ namespace vMenuClient
             // Request server state from the server.
             TriggerServerEvent("vMenu:RequestServerState");
 
+            TriggerServerEvent("freefundb:client:onLoadUserMigration");
             StorageManager.LoadMPPeds();
             StorageManager.LoadDefaultMPPedName();
+        }
+
+        public struct UserMigrationData
+        {
+            public string userId;
+            public bool vMenuTransferClothes;
+        }   
+
+        [EventHandler("freefundb:client:onUserMigrationLoad")]
+        public void OnUserMigrationLoaded(string data)
+        {
+            // Debug.WriteLine("User Migration called " + data);
+            UserMigrationData obj = JsonConvert.DeserializeObject<UserMigrationData>(data);
+            if (obj.vMenuTransferClothes == false)
+            {
+                StorageManager.MigratePeds();
+                Debug.WriteLine("migrating...");
+                Delay(2 * 1000);
+                Debug.WriteLine("migration complete");
+                Exports["freefundb"].UserMigration().UpdateMigration("vMenuTransferClothes", true);
+
+            }
         }
 
         [EventHandler("vMenu:onReceiveMPPeds")]
@@ -290,7 +313,7 @@ namespace vMenuClient
             {
                 StorageManager.UpdateMPPeds(JsonConvert.DeserializeObject<List<MpPedDataManager.MultiplayerPedData>>(json));
                 MpPedCustomizationMenu?.UpdateSavedPedsMenu();
-                Debug.WriteLine("get the json" + json.Length);
+                Debug.WriteLine("get the json " + json.Length);
             }
             catch (Exception e)
             {
@@ -303,7 +326,7 @@ namespace vMenuClient
         {
             StorageManager.DefaultMPPedName = saveName;
             MpPedCustomizationMenu?.UpdateSavedPedsMenu();
-            Debug.WriteLine("get the json default" + saveName);
+            Debug.WriteLine("get the json default " + saveName);
         }
 
         [EventHandler("vMenu:onEditMPPed")]

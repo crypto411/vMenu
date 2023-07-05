@@ -41,6 +41,11 @@ namespace vMenuClient
             BaseScript.TriggerServerEvent("vMenu:onSavePed", saveType, saveName, json);
         }
 
+        public static void SaveMPPeds(string json)
+        {
+            BaseScript.TriggerServerEvent("vMenu:onSavePeds", json);
+        }
+
         public static void DeleteMPPed(string saveName)
         {
             if(saveName == DefaultMPPedName)
@@ -88,6 +93,12 @@ namespace vMenuClient
             }
             Debug.WriteLine($"getMPPed: savename {saveName} count {MPPeds.Count}");
             return output;
+        }
+
+        public static void MigratePeds()
+        {
+            var peds = GetSavedMpPeds();
+            SaveMPPeds(JsonConvert.SerializeObject(peds));
         }
 
         public static bool SaveDictionary(string saveName, Dictionary<string, string> data, bool overrideExistingData)
