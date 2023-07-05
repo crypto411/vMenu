@@ -278,6 +278,39 @@ namespace vMenuClient
 
             // Request server state from the server.
             TriggerServerEvent("vMenu:RequestServerState");
+
+            StorageManager.LoadMPPeds();
+            StorageManager.LoadDefaultMPPedName();
+        }
+
+        [EventHandler("vMenu:onReceiveMPPeds")]
+        public void OnUpdateMPPeds(string json)
+        {
+            try
+            {
+                StorageManager.UpdateMPPeds(JsonConvert.DeserializeObject<List<MpPedDataManager.MultiplayerPedData>>(json));
+                MpPedCustomizationMenu?.UpdateSavedPedsMenu();
+                Debug.WriteLine("get the json" + json.Length);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine($"Error: ${e.Message}");
+            }
+        }
+
+        [EventHandler("vMenu:onReceiveDefaultMPPedName")]
+        public void onUpdateDefaultMPPedName(string saveName)
+        {
+            StorageManager.DefaultMPPedName = saveName;
+            MpPedCustomizationMenu?.UpdateSavedPedsMenu();
+            Debug.WriteLine("get the json default" + saveName);
+        }
+
+        [EventHandler("vMenu:onEditMPPed")]
+        public void onEditMPPed()
+        {
+            MpPedCustomizationMenu?.EditCurrentPed();
+            Debug.WriteLine("onEditMPPed");
         }
 
         #region Infinity bits

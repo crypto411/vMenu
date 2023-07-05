@@ -765,7 +765,7 @@ namespace vMenuClient
                     MenuController.CloseAllMenus();
                     var vehicles = GetSavedVehicles();
                     var normalPeds = StorageManager.GetSavedPeds();
-                    var mpPeds = StorageManager.GetSavedMpPeds();
+                    var mpPeds = StorageManager.MPPeds;
                     var weaponLoadouts = WeaponLoadouts.GetSavedWeapons();
                     var data = JsonConvert.SerializeObject(new
                     {

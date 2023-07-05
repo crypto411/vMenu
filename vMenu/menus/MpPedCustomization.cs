@@ -40,6 +40,7 @@ namespace vMenuClient
         private readonly List<string> facial_expressions = new List<string>() { "mood_Normal_1", "mood_Happy_1", "mood_Angry_1", "mood_Aiming_1", "mood_Injured_1", "mood_stressed_1", "mood_smug_1", "mood_sulk_1", };
 
         private MultiplayerPedData currentCharacter = new MultiplayerPedData();
+        private Boolean editFromExternal = false;
 
 
 
@@ -709,17 +710,9 @@ namespace vMenuClient
             if (isEdidtingPed)
             {
                 string json = JsonConvert.SerializeObject(currentCharacter);
-                if (StorageManager.SaveJsonData(currentCharacter.SaveName, json, true))
-                {
-                    BaseScript.TriggerServerEvent("vMenu:onSavePed", "editing", currentCharacter.SaveName, json);
-                    Notify.Success("Your character was saved successfully.");
-                    return true;
-                }
-                else
-                {
-                    Notify.Error("Your character could not be saved. Reason unknown. :(");
-                    return false;
-                }
+                StorageManager.SaveMPPed("edit", currentCharacter.SaveName, json);
+                Notify.Success("Your character was saved successfully.");
+                return true;
             }
             else
             {
@@ -731,19 +724,20 @@ namespace vMenuClient
                 }
                 else
                 {
-                    currentCharacter.SaveName = "mp_ped_" + name;
-                    string json = JsonConvert.SerializeObject(currentCharacter);
-                    if (StorageManager.SaveJsonData("mp_ped_" + name, json, false))
+                    if(StorageManager.IsPedExists(name))
                     {
-                        BaseScript.TriggerServerEvent("vMenu:onSavePed", "new", currentCharacter.SaveName, json);
-                        Notify.Success($"Your character (~g~<C>{name}</C>~s~) has been saved.");
-                        Log($"Saved Character {name}. Data: {json}");
-                        return true;
+                        Notify.Error(CommonErrors.SaveNameAlreadyExists);
+                        return false;
                     }
                     else
                     {
-                        Notify.Error($"Saving failed, most likely because this name (~y~<C>{name}</C>~s~) is already in use.");
-                        return false;
+                        currentCharacter.SaveName = name;
+                        string json = JsonConvert.SerializeObject(currentCharacter);
+                        StorageManager.SaveMPPed("new", name, json);
+                        Notify.Success($"Your character (~g~<C>{name}</C>~s~) has been saved.");
+                        Log($"Saved Character {name}. Data: {json}");
+                        return true;
+
                     }
                 }
             }
@@ -1768,7 +1762,16 @@ namespace vMenuClient
                             await BaseScript.Delay(0);
                         await BaseScript.Delay(100);
 
-                        createCharacterMenu.GoBack();
+                        if(!editFromExternal)
+                        {
+                            createCharacterMenu.GoBack();
+                        }
+                        else
+                        {
+                            BaseScript.TriggerEvent("vMenu:onEditMPPedSave", selectedSavedCharacterManageName);
+                            BaseScript.TriggerEvent("vMenu:onEditMPPedClose", selectedSavedCharacterManageName);
+                            createCharacterMenu.CloseMenu();
+                        }
                     }
                 }
                 else if (item == exitNoSave) // exit without saving
@@ -1799,10 +1802,19 @@ namespace vMenuClient
                     // if confirmed to discard changes quit the editor.
                     if (confirm)
                     {
-                        while (IsControlPressed(2, 201) || IsControlPressed(2, 217) || IsDisabledControlPressed(2, 201) || IsDisabledControlPressed(2, 217))
-                            await BaseScript.Delay(0);
-                        await BaseScript.Delay(100);
-                        menu.OpenMenu();
+
+                        if (!editFromExternal)
+                        {
+                            while (IsControlPressed(2, 201) || IsControlPressed(2, 217) || IsDisabledControlPressed(2, 201) || IsDisabledControlPressed(2, 217))
+                                await BaseScript.Delay(0);
+                            await BaseScript.Delay(100);
+                            menu.OpenMenu();
+                        }
+                        else
+                        {
+                            BaseScript.TriggerEvent("vMenu:onEditMPPedClose", selectedSavedCharacterManageName);
+                            createCharacterMenu.CloseMenu();
+                        }
                     }
                     else // otherwise cancel and go back to the editor.
                     {
@@ -1908,7 +1920,7 @@ namespace vMenuClient
         /// <param name="name"></param>
         internal async Task SpawnThisCharacter(string name, bool restoreWeapons)
         {
-            currentCharacter = StorageManager.GetSavedMpCharacterData(name);
+            currentCharacter = StorageManager.GetMPPed(name);
             await SpawnSavedPed(restoreWeapons);
         }
 
@@ -1919,7 +1931,7 @@ namespace vMenuClient
         /// <returns></returns>
         private async Task SpawnSavedPed(bool restoreWeapons)
         {
-            if (currentCharacter.Version < 1)
+            if (currentCharacter.Version < 0)
             {
                 return;
             }
@@ -2147,21 +2159,20 @@ namespace vMenuClient
             {
                 if (item == editPedBtn)
                 {
-                    currentCharacter = StorageManager.GetSavedMpCharacterData(selectedSavedCharacterManageName);
-
-                    await SpawnSavedPed(true);
-
-                    MakeCreateCharacterMenu(male: currentCharacter.IsMale, editPed: true);
+                    editFromExternal = false;
+                    createCharacterMenu.MenuTitle = "Create Character";
+                    createCharacterMenu.MenuSubtitle = "Create A New Character";
+                    onEditPed(selectedSavedCharacterManageName);
                 }
                 else if (item == spawnPed)
                 {
-                    currentCharacter = StorageManager.GetSavedMpCharacterData(selectedSavedCharacterManageName);
-
+                    currentCharacter = StorageManager.GetMPPed(selectedSavedCharacterManageName);
+                    // Debug.WriteLine($"spawn {selectedSavedCharacterManageName} current: {currentCharacter.SaveName} isMale: {currentCharacter.IsMale} version: {currentCharacter.Version}");
                     await SpawnSavedPed(true);
                 }
                 else if (item == clonePed)
                 {
-                    var tmpCharacter = StorageManager.GetSavedMpCharacterData("mp_ped_" + selectedSavedCharacterManageName);
+                    var tmpCharacter = StorageManager.GetMPPed(selectedSavedCharacterManageName);
                     string name = await GetUserInput(windowTitle: "Enter a name for the cloned character", defaultText: tmpCharacter.SaveName.Substring(7), maxInputLength: 30);
                     if (string.IsNullOrEmpty(name))
                     {
@@ -2169,30 +2180,23 @@ namespace vMenuClient
                     }
                     else
                     {
-                        if (!string.IsNullOrEmpty(GetResourceKvpString("mp_ped_" + name)))
+                        if (StorageManager.IsPedExists(name))
                         {
                             Notify.Error(CommonErrors.SaveNameAlreadyExists);
                         }
                         else
                         {
                             var json = JsonConvert.SerializeObject(tmpCharacter);
-                            tmpCharacter.SaveName = "mp_ped_" + name;
-                            if (StorageManager.SaveJsonData("mp_ped_" + name, json, false))
-                            {
-                                BaseScript.TriggerServerEvent("vMenu:onSavePed", "cloning", tmpCharacter.SaveName, json);
-                                Notify.Success($"Your character has been cloned. The name of the cloned character is: ~g~<C>{name}</C>~s~.");
-                                UpdateSavedPedsMenu();
-                            }
-                            else
-                            {
-                                Notify.Error("The clone could not be created, reason unknown. Does a character already exist with that name? :(");
-                            }
+                            tmpCharacter.SaveName = name;
+                            StorageManager.SaveMPPed("cloning", name, json);
+                            Notify.Success($"Your character has been cloned. The name of the cloned character is: ~g~<C>{name}</C>~s~.");
+                            UpdateSavedPedsMenu();
                         }
                     }
                 }
                 else if (item == renameCharacter)
                 {
-                    var tmpCharacter = StorageManager.GetSavedMpCharacterData("mp_ped_" + selectedSavedCharacterManageName);
+                    var tmpCharacter = StorageManager.GetMPPed(selectedSavedCharacterManageName);
                     string name = await GetUserInput(windowTitle: "Enter a new character name", defaultText: tmpCharacter.SaveName.Substring(7), maxInputLength: 30);
                     if (string.IsNullOrEmpty(name))
                     {
@@ -2200,31 +2204,25 @@ namespace vMenuClient
                     }
                     else
                     {
-                        if (!string.IsNullOrEmpty(GetResourceKvpString("mp_ped_" + name)))
+                        if (StorageManager.IsPedExists(name))
                         {
                             Notify.Error(CommonErrors.SaveNameAlreadyExists);
                         }
                         else
                         {
                             var json = JsonConvert.SerializeObject(tmpCharacter);
-                            tmpCharacter.SaveName = "mp_ped_" + name;
+                            tmpCharacter.SaveName = name;
 
-                            if (StorageManager.SaveJsonData("mp_ped_" + name, json, false))
+                            StorageManager.SaveMPPed("renaming", tmpCharacter.SaveName, json);
+                            StorageManager.DeleteMPPed(selectedSavedCharacterManageName);
+                            //StorageManager.DeleteSavedStorageItem("mp_ped_" + selectedSavedCharacterManageName);
+                            Notify.Success($"Your character has been renamed to ~g~<C>{name}</C>~s~.");
+                            UpdateSavedPedsMenu();
+                            while (!MenuController.IsAnyMenuOpen())
                             {
-                                BaseScript.TriggerServerEvent("vMenu:onSavePed", "renaming", tmpCharacter.SaveName, json);
-                                StorageManager.DeleteSavedStorageItem("mp_ped_" + selectedSavedCharacterManageName);
-                                Notify.Success($"Your character has been renamed to ~g~<C>{name}</C>~s~.");
-                                UpdateSavedPedsMenu();
-                                while (!MenuController.IsAnyMenuOpen())
-                                {
-                                    await BaseScript.Delay(0);
-                                }
-                                manageSavedCharacterMenu.GoBack();
+                                await BaseScript.Delay(0);
                             }
-                            else
-                            {
-                                Notify.Error("Something went wrong while renaming your character, your old character will NOT be deleted because of this.");
-                            }
+                            manageSavedCharacterMenu.GoBack();
                         }
                     }
                 }
@@ -2233,7 +2231,9 @@ namespace vMenuClient
                     if (delPed.Label == "Are you sure?")
                     {
                         delPed.Label = "";
-                        DeleteResourceKvp("mp_ped_" + selectedSavedCharacterManageName);
+                        var selectedSavedCharacterName = "mp_ped_" + selectedSavedCharacterManageName;
+                        StorageManager.DeleteMPPed(selectedSavedCharacterManageName);
+                        DeleteResourceKvp(selectedSavedCharacterName);
                         Notify.Success("Your saved character has been deleted.");
                         manageSavedCharacterMenu.GoBack();
                         UpdateSavedPedsMenu();
@@ -2247,7 +2247,9 @@ namespace vMenuClient
                 else if (item == setAsDefaultPed)
                 {
                     Notify.Success($"Your character <C>{selectedSavedCharacterManageName}</C> will now be used as your default character whenever you (re)spawn.");
-                    SetResourceKvp("vmenu_default_character", "mp_ped_" + selectedSavedCharacterManageName);
+                    var selectedSavedCharacterName = "mp_ped_" + selectedSavedCharacterManageName;
+                    StorageManager.SetMPPedAsDefault(selectedSavedCharacterManageName);
+                    SetResourceKvp("vmenu_default_character", selectedSavedCharacterName);
                 }
 
                 if (item != delPed)
@@ -2277,11 +2279,12 @@ namespace vMenuClient
         /// <summary>
         /// Updates the saved peds menu.
         /// </summary>
-        private void UpdateSavedPedsMenu()
+        public void UpdateSavedPedsMenu()
         {
-            string defaultChar = GetResourceKvpString("vmenu_default_character") ?? "";
+            string defaultChar = StorageManager.DefaultMPPedName;
 
             List<string> names = new List<string>();
+            /*
             var handle = StartFindKvp("mp_ped_");
             while (true)
             {
@@ -2296,18 +2299,23 @@ namespace vMenuClient
                 }
             }
             EndFindKvp(handle);
+            */
+            StorageManager.MPPeds.ForEach(ped =>
+            {
+                names.Add(ped.SaveName);
+            });
             savedCharactersMenu.ClearMenuItems();
             if (names.Count > 0)
             {
                 names.Sort((a, b) => { return a.ToLower().CompareTo(b.ToLower()); });
                 foreach (string item in names)
                 {
-                    var tmpData = StorageManager.GetSavedMpCharacterData("mp_ped_" + item);
+                    var tmpData = StorageManager.GetMPPed(item);
                     MenuItem btn = new MenuItem(item, "Click to spawn, edit, clone, rename or delete this saved character.")
                     {
                         Label = $"({(tmpData.IsMale ? "M" : "F")}) →→→"
                     };
-                    if (defaultChar == "mp_ped_" + item)
+                    if (defaultChar == item)
                     {
                         btn.LeftIcon = MenuItem.Icon.TICK;
                         btn.Description += " ~g~This character is currently set as your default character and will be used whenever you (re)spawn.";
@@ -2317,6 +2325,14 @@ namespace vMenuClient
                 }
             }
             savedCharactersMenu.RefreshIndex();
+        }
+
+        private async void onEditPed(string saveName)
+        {
+            currentCharacter = StorageManager.GetMPPed(saveName);
+            await SpawnSavedPed(true);
+
+            MakeCreateCharacterMenu(male: currentCharacter.IsMale, editPed: true);
         }
 
         /// <summary>
@@ -2332,5 +2348,25 @@ namespace vMenuClient
             return menu;
         }
 
+        public void EditCurrentPed()
+        {
+            var saveName = selectedSavedCharacterManageName;
+            if(string.IsNullOrEmpty(saveName))
+            {
+                saveName = StorageManager.DefaultMPPedName;
+                if(string.IsNullOrEmpty(saveName))
+                {
+                    BaseScript.TriggerEvent("vMenu:onEditPedError", "savename not found");
+                    Notify.Error("Kamu belum membuat ~g~multiplayer character~w~, harap membuat terlebih dahulu");
+                    return;
+                }
+            }
+            editFromExternal = true;
+            BaseScript.TriggerEvent("vMenu:onEditMPPedStart", saveName);
+            createCharacterMenu.MenuTitle = "Edit Character";
+            createCharacterMenu.MenuSubtitle = "Edit an Existing character";
+            createCharacterMenu.OpenMenu();
+            onEditPed(saveName);
+        }
     }
 }

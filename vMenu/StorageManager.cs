@@ -20,6 +20,76 @@ namespace vMenuClient
         /// <param name="overrideExistingData">When true, will override existing save data with the same name. 
         /// If false, it will cancel the save if existing data is found and return false.</param>
         /// <returns>A boolean value indicating if the save was successful.</returns>
+
+        public static List<MpPedDataManager.MultiplayerPedData> MPPeds = new List<MpPedDataManager.MultiplayerPedData>();
+        public static string DefaultMPPedName = "";
+
+
+        public static void UpdateMPPeds(List<MpPedDataManager.MultiplayerPedData> mpPeds) {
+            MPPeds.Clear();
+            MPPeds.AddRange(mpPeds);
+        }
+
+        public static void SetMPPedAsDefault(string saveName)
+        {
+            DefaultMPPedName = saveName;
+            BaseScript.TriggerServerEvent("vMenu:onSetPedAsDefault", saveName);
+        }
+
+        public static void SaveMPPed(string saveType, string saveName, string json)
+        {
+            BaseScript.TriggerServerEvent("vMenu:onSavePed", saveType, saveName, json);
+        }
+
+        public static void DeleteMPPed(string saveName)
+        {
+            if(saveName == DefaultMPPedName)
+            {
+                DefaultMPPedName = "";
+                SetMPPedAsDefault("");
+                
+            }
+            BaseScript.TriggerServerEvent("vMenu:onDeletePed", saveName);
+        }
+
+        public static bool IsPedExists(string saveName)
+        {
+            return MPPeds.Exists(ped => ped.SaveName == saveName);
+        }
+
+        public static void LoadMPPeds()
+        {
+            BaseScript.TriggerServerEvent("vMenu:onLoadPeds");
+        }
+
+        public static void LoadDefaultMPPedName()
+        {
+            BaseScript.TriggerServerEvent("vMenu:onLoadDefaultMPPedName");
+        }
+
+        public static MpPedDataManager.MultiplayerPedData GetMPPed(string saveName)
+        {
+            var output = new MpPedDataManager.MultiplayerPedData();
+            if (string.IsNullOrEmpty(saveName))
+            {
+                return output;
+            }
+            
+            if(MPPeds.Count > 0)
+            {
+                try
+                {
+                    output = MPPeds.Find(ped => ped.SaveName == saveName);
+                }
+                catch (JsonException e)
+                {
+                    Debug.WriteLine($"error {e.Message}");
+                }
+            }
+            Debug.WriteLine($"getMPPed: savename {saveName} count {MPPeds.Count}");
+            return output;
+        }
+
         public static bool SaveDictionary(string saveName, Dictionary<string, string> data, bool overrideExistingData)
         {
             // If the savename doesn't exist yet or we're allowed to override it.

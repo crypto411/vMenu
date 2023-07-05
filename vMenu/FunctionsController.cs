@@ -1963,7 +1963,7 @@ namespace vMenuClient
                 bool restoreDefault = false;
                 if (MainMenu.MiscSettingsMenu.MiscRespawnDefaultCharacter)
                 {
-                    if (!string.IsNullOrEmpty(GetResourceKvpString("vmenu_default_character")))
+                    if (!string.IsNullOrEmpty(StorageManager.DefaultMPPedName))
                     {
                         restoreDefault = true;
                     }
@@ -2000,7 +2000,7 @@ namespace vMenuClient
 
                 if (restoreDefault)
                 {
-                    await MainMenu.MpPedCustomizationMenu.SpawnThisCharacter(GetResourceKvpString("vmenu_default_character"), false);
+                    await MainMenu.MpPedCustomizationMenu.SpawnThisCharacter(StorageManager.DefaultMPPedName, false);
                 }
                 else
                 {
