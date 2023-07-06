@@ -2173,7 +2173,7 @@ namespace vMenuClient
                 else if (item == clonePed)
                 {
                     var tmpCharacter = StorageManager.GetMPPed(selectedSavedCharacterManageName);
-                    string name = await GetUserInput(windowTitle: "Enter a name for the cloned character", defaultText: tmpCharacter.SaveName.Substring(7), maxInputLength: 30);
+                    string name = await GetUserInput(windowTitle: "Enter a name for the cloned character", defaultText: tmpCharacter.SaveName, maxInputLength: 30);
                     if (string.IsNullOrEmpty(name))
                     {
                         Notify.Error(CommonErrors.InvalidSaveName);
@@ -2186,8 +2186,8 @@ namespace vMenuClient
                         }
                         else
                         {
-                            var json = JsonConvert.SerializeObject(tmpCharacter);
                             tmpCharacter.SaveName = name;
+                            var json = JsonConvert.SerializeObject(tmpCharacter);
                             StorageManager.SaveMPPed("cloning", name, json);
                             Notify.Success($"Your character has been cloned. The name of the cloned character is: ~g~<C>{name}</C>~s~.");
                             UpdateSavedPedsMenu();
@@ -2197,7 +2197,7 @@ namespace vMenuClient
                 else if (item == renameCharacter)
                 {
                     var tmpCharacter = StorageManager.GetMPPed(selectedSavedCharacterManageName);
-                    string name = await GetUserInput(windowTitle: "Enter a new character name", defaultText: tmpCharacter.SaveName.Substring(7), maxInputLength: 30);
+                    string name = await GetUserInput(windowTitle: "Enter a new character name", defaultText: tmpCharacter.SaveName, maxInputLength: 30);
                     if (string.IsNullOrEmpty(name))
                     {
                         Notify.Error(CommonErrors.InvalidInput);
@@ -2210,9 +2210,8 @@ namespace vMenuClient
                         }
                         else
                         {
-                            var json = JsonConvert.SerializeObject(tmpCharacter);
                             tmpCharacter.SaveName = name;
-
+                            var json = JsonConvert.SerializeObject(tmpCharacter);
                             StorageManager.SaveMPPed("renaming", tmpCharacter.SaveName, json);
                             StorageManager.DeleteMPPed(selectedSavedCharacterManageName);
                             //StorageManager.DeleteSavedStorageItem("mp_ped_" + selectedSavedCharacterManageName);
@@ -2249,6 +2248,7 @@ namespace vMenuClient
                     Notify.Success($"Your character <C>{selectedSavedCharacterManageName}</C> will now be used as your default character whenever you (re)spawn.");
                     var selectedSavedCharacterName = "mp_ped_" + selectedSavedCharacterManageName;
                     StorageManager.SetMPPedAsDefault(selectedSavedCharacterManageName);
+                    UpdateSavedPedsMenu();
                     SetResourceKvp("vmenu_default_character", selectedSavedCharacterName);
                 }
 
