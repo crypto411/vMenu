@@ -279,7 +279,6 @@ namespace vMenuClient
             // Request server state from the server.
             TriggerServerEvent("vMenu:RequestServerState");
 
-            TriggerServerEvent("freefundb:client:onLoadUserMigration");
             StorageManager.LoadMPPeds();
             StorageManager.LoadDefaultMPPedName();
         }
